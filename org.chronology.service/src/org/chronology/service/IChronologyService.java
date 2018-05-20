@@ -36,7 +36,7 @@ public interface IChronologyService {
 	Chronology getCommitGraph(Commit targetCommit);
 
 	Chronology createModification(String schemaName,
-			String tableName, long id, Modification modification,
+			String tableName, String id, Modification modification,
 			String newContent);
 
 	DatabaseTable getTableByName(String schemaName,

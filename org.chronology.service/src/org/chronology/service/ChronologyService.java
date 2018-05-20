@@ -97,7 +97,7 @@ final class ChronologyService implements IChronologyService {
 			throw new ChronologyException("databaseRecord is null");
 		}		
 		final List<DatabaseModification> recordVersions = server.referencesDatabaseModificationByDatabaseRecord(databaseRecord.getPrimaryKey());
-		DatabaseModification.sortByCommit(recordVersions, false); // TODO model has to the change time -> DatabaseModification.ChangeTime
+		DatabaseModification.sortByModificationTime(recordVersions, false);
 		return recordVersions;
 	}
 	
@@ -192,11 +192,11 @@ final class ChronologyService implements IChronologyService {
 	}
 		
 	/* (non-Javadoc)
-	 * @see org.chronology.service.IChronologyService#createModification(java.lang.String, java.lang.String, long, org.chronology.service.Modification, java.lang.String)
+	 * @see org.chronology.service.IChronologyService#createModification(java.lang.String, java.lang.String, java.lang.String, org.chronology.service.Modification, java.lang.String)
 	 */
 	@Override
 	@Offline
-	public Chronology createModification(final String schemaName, final String tableName, final long id, final Modification modification, final String newContent) {
+	public Chronology createModification(final String schemaName, final String tableName, final String id, final Modification modification, final String newContent) {
 		if (schemaName == null) {
 			throw new ChronologyException("schemaName is null");
 		}
@@ -234,7 +234,7 @@ final class ChronologyService implements IChronologyService {
 		chronology.addDatabaseRecord(databaseRecord);
 				
 		final DatabaseModification databaseModification = DatabaseModification.generate();
-		// databaseModification.setModificationTime(new Date()); TODO after model
+		databaseModification.setModificationTime(new Date());
 		databaseModification.setChangeType(changeType.getPrimaryKey());
 		databaseModification.setNewContent(newContent);		
 		databaseModification.setDatabaseRecord(databaseRecord.getPrimaryKey());
@@ -245,7 +245,7 @@ final class ChronologyService implements IChronologyService {
 	
 	// TODO performance has to be tuned
 	@ReadOnly
-	private DatabaseKey getKeyByID(final DatabaseTable databaseTable, final Long id) {
+	private DatabaseKey getKeyByID(final DatabaseTable databaseTable, final String id) {
 		if (databaseTable == null) {
 			throw new ChronologyException("databaseTable is null");
 		}
@@ -256,7 +256,7 @@ final class ChronologyService implements IChronologyService {
 		for (DatabaseRecord databaseRecord : databaseRecords) {
 			final DatabaseKey databaseKey = databaseRecord.getDatabaseKeyRef();
 			if (databaseKey != null) {
-				if (databaseKey.getTableKey() == id) {
+				if (databaseKey.getTableKey().equals(id)) {
 					return databaseKey;
 				}
 			}
@@ -378,7 +378,7 @@ final class ChronologyService implements IChronologyService {
 		if (repository == null) {
 			throw new ChronologyException("repository is null");
 		}
-		return server.listDatabaseSchema(); // TODO change model for DatabaseSchema.Repository
+		return server.referencesDatabaseSchemaByRepository(repository.getPrimaryKey());
 	}
 
 	@Override
