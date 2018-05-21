@@ -16,7 +16,7 @@ public class Example1 {
 	public static void main(String[] args) {
 		
 		// connect your application with the chronology data source
-		final IChronologyService chronologyService = ChronologyServiceFactory.login("tb");
+		final IChronologyService chronologyService = ChronologyServiceFactory.login("User B", "MyRepository", "Branch-2");
 		
 		// get all repositories that are inside this chronology data source
 		final List<Repository> repositories = chronologyService.getRepositories();

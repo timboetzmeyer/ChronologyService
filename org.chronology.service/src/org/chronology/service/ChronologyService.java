@@ -24,21 +24,51 @@ final class ChronologyService implements IChronologyService {
 	
 	private final IServer server;
 	private final UserAccount userAccount;
+	private final Repository repository;
+	private final Branch currentBranch;
 	
-	protected ChronologyService(final String userName) {
+	protected ChronologyService(final String userName, final String repositoryName, final String branchName) {
 		if (userName == null) {
 			throw new ChronologyException("userAccount is null");
 		}
-		this.server = ServerFactory.create();
-		UserAccount user = this.findUserByName(userName);
-		if (user == null) {
-			user = UserAccount.generate();
-			user.setUserName(userName);
-			if (user.save() == false) {
-				throw new ChronologyException(String.format("New user with name '%s' could not be created in the chronology model", userName));
+		if (repositoryName == null) {
+			throw new ChronologyException("repositoryName is null");
+		}
+		if (branchName == null) {
+			throw new ChronologyException("branchName is null");
+		}
+		server = ServerFactory.create();
+		
+		userAccount = this.findUserByName(userName);
+		if (userAccount == null) {
+			throw new ChronologyException(String.format("User with name '%s' could not be found in the chronology model", userName));
+		}
+		
+		repository = this.findRepositoryByName(repositoryName);
+		if (repository == null) {
+			throw new ChronologyException(String.format("Repository with name '%s' could not be found in the chronology model", repositoryName));
+		}
+		
+		currentBranch = this.findBranchByName(repository, branchName);
+		if (currentBranch == null) {
+			throw new ChronologyException(String.format("Branch with name '%s' could not be found in the chronology model", branchName));
+		}		
+	}
+
+	private Branch findBranchByName(final Repository repository, final String branchName) {
+		if (repository == null) {
+			throw new ChronologyException("repository is null");
+		}
+		if (branchName == null) {
+			throw new ChronologyException("branchName is null");
+		}
+		List<Branch> branches = server.referencesBranchByRepository(repository.getPrimaryKey());
+		for (Branch branch : branches) {
+			if (branch.getBranchName().equalsIgnoreCase(branchName)) {
+				return branch;
 			}
 		}
-		this.userAccount = user;		
+		return null;
 	}
 
 	private UserAccount findUserByName(final String userName) {
@@ -49,6 +79,19 @@ final class ChronologyService implements IChronologyService {
 		for (UserAccount userAccount : users) {
 			if (userAccount.getUserName().equalsIgnoreCase(userName)) {
 				return userAccount;
+			}
+		}
+		return null;
+	}
+
+	private Repository findRepositoryByName(final String repositoryName) {
+		if (repositoryName == null) {
+			throw new ChronologyException("repositoryName is null");
+		}
+		List<Repository> repositories = server.listRepository();
+		for (Repository repository : repositories) {
+			if (repository.getRepositoryName().equalsIgnoreCase(repositoryName)) {
+				return repository;
 			}
 		}
 		return null;
@@ -319,12 +362,13 @@ final class ChronologyService implements IChronologyService {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.chronology.service.IChronologyService#commit(com.boetzmeyer.chronology.chronology.Branch, com.boetzmeyer.chronology.chronology.Chronology)
+	 * @see org.chronology.service.IChronologyService#commit(com.boetzmeyer.chronology.chronology.Chronology)
 	 */
 	@Override
-	public Commit commit(final Branch branch, final Chronology chronology) {
+	public Commit commit(final Chronology chronology) {
+		final Branch branch = this.getCurrentBranch();
 		if (branch == null) {
-			throw new ChronologyException("branch is null");
+			throw new ChronologyException("current branch is null");
 		}
 		if (chronology == null) {
 			throw new ChronologyException("chronology is null");
@@ -387,6 +431,11 @@ final class ChronologyService implements IChronologyService {
 			throw new ChronologyException("databaseTable is null");
 		}
 		return server.referencesDatabaseRecordByDatabaseTable(databaseTable.getPrimaryKey());
+	}
+
+	@Override
+	public Branch getCurrentBranch() {
+		return this.currentBranch.copy();
 	}
 
 }

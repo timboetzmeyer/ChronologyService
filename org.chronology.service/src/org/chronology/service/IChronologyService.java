@@ -47,10 +47,12 @@ public interface IChronologyService {
 
 	DatabaseSchema getSchemaByName(String schemaName);
 
-	Commit commit(Branch branch, Chronology chronology);
+	Commit commit(Chronology chronology);
 
 	List<DatabaseSchema> getSchemas(Repository repository);
 
 	List<DatabaseRecord> getTableRecords(DatabaseTable databaseTable);
+
+	Branch getCurrentBranch();
 
 }

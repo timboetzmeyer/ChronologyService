@@ -6,12 +6,12 @@ public final class ChronologyServiceFactory {
 	private ChronologyServiceFactory() {
 	}
 
-	public synchronized static IChronologyService login(final String userName) {
+	public synchronized static IChronologyService login(final String userName, final String repositoryName, final String branchName) {
 		if (userName == null) {
 			throw new ChronologyException("userName is null");
 		}
 		if (chronologyService == null) {
-			chronologyService = new ChronologyService(userName);
+			chronologyService = new ChronologyService(userName, repositoryName, branchName);
 		}
 		return chronologyService;
 	}
