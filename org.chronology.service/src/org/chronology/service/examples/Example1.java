@@ -1,8 +1,10 @@
 package org.chronology.service.examples;
 
+import java.io.File;
 import java.util.List;
 
 import org.chronology.service.ChronologyServiceFactory;
+import org.chronology.service.FileConfig;
 import org.chronology.service.IChronologyService;
 
 import com.boetzmeyer.chronology.chronology.DatabaseModification;
@@ -15,8 +17,11 @@ public class Example1 {
 
 	public static void main(String[] args) {
 		
+		// the chronology source is in a file
+		final FileConfig fileConfig = new FileConfig(new File(System.getProperty("user.dir")));
+		
 		// connect your application with the chronology data source
-		final IChronologyService chronologyService = ChronologyServiceFactory.login("User B", "MyRepository", "Branch-2");
+		final IChronologyService chronologyService = ChronologyServiceFactory.login(fileConfig, "User B", "MyRepository", "Branch-2");
 		
 		// get all repositories that are inside this chronology data source
 		final List<Repository> repositories = chronologyService.getRepositories();

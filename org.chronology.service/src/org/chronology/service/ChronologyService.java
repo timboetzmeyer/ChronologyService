@@ -27,7 +27,7 @@ final class ChronologyService implements IChronologyService {
 	private final Repository repository;
 	private final Branch currentBranch;
 	
-	protected ChronologyService(final String userName, final String repositoryName, final String branchName) {
+	protected ChronologyService(final SQLConfig sqlConfig, final FileConfig fileConfig, final String userName, final String repositoryName, final String branchName) {
 		if (userName == null) {
 			throw new ChronologyException("userAccount is null");
 		}
@@ -37,7 +37,13 @@ final class ChronologyService implements IChronologyService {
 		if (branchName == null) {
 			throw new ChronologyException("branchName is null");
 		}
+		if (sqlConfig != null)  {
+//			Settings.setFileSource(false); // TODO make visible
+		} else if (fileConfig != null)  {
+//			Settings.setFileSource(true); // TODO make visible
+		} 
 		server = ServerFactory.create();
+		
 		
 		userAccount = this.findUserByName(userName);
 		if (userAccount == null) {
