@@ -17,6 +17,7 @@ import com.boetzmeyer.chronology.chronology.DatabaseTable;
 import com.boetzmeyer.chronology.chronology.IServer;
 import com.boetzmeyer.chronology.chronology.Repository;
 import com.boetzmeyer.chronology.chronology.ServerFactory;
+import com.boetzmeyer.chronology.chronology.Settings;
 import com.boetzmeyer.chronology.chronology.UserAccount;
 
 final class ChronologyService implements IChronologyService {	
@@ -38,9 +39,9 @@ final class ChronologyService implements IChronologyService {
 			throw new ChronologyException("branchName is null");
 		}
 		if (sqlConfig != null)  {
-//			Settings.setFileSource(false); // TODO make visible
+			ServerFactory.setFileSource(false);
 		} else if (fileConfig != null)  {
-//			Settings.setFileSource(true); // TODO make visible
+			ServerFactory.setFileSource(true);
 		} 
 		server = ServerFactory.create();
 		
